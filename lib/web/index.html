@@ -1,0 +1,1152 @@
+<!DOCTYPE html>
+<html lang="zh-CN" data-theme="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <title>Soundpad Remote</title>
+    <style>
+        /* ========== CSS Variables / Theme ========== */
+        :root {
+            --radius-sm: 6px;
+            --radius-md: 10px;
+            --radius-lg: 14px;
+            --transition: 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        [data-theme="dark"] {
+            --bg-primary: #0f0f1a;
+            --bg-secondary: #1a1a2e;
+            --bg-tertiary: #12122a;
+            --bg-card: #1c1c38;
+            --bg-card-hover: #262650;
+            --bg-header: #14142e;
+            --bg-input: #0a0a18;
+            --bg-modal: #1a1a30;
+            --bg-cat: #14142e;
+            --bg-cat-header-hover: #1e1e40;
+            --bg-subcat: rgba(255,255,255,0.03);
+            --bg-subcat-header: rgba(100,100,160,0.15);
+            --bg-subcat-header-hover: rgba(100,100,160,0.25);
+            --text-primary: #e8e8f0;
+            --text-secondary: #b0b0c0;
+            --text-muted: #6a6a80;
+            --border-color: #1e1e44;
+            --border-light: rgba(100,100,160,0.3);
+            --border-focus: #e94560;
+            --accent: #e94560;
+            --accent-hover: #d63851;
+            --accent-glow: rgba(233,69,96,0.15);
+            --green: #4ecca3;
+            --green-bg: rgba(78,204,163,0.1);
+            --blue: #7eb8da;
+            --blue-bg: rgba(126,184,218,0.1);
+            --purple: #7c5ce7;
+            --purple-hover: #6a4bd4;
+            --toast-bg: #2a2a44;
+            --shadow-sm: 0 1px 3px rgba(0,0,0,0.3);
+            --shadow-md: 0 4px 12px rgba(0,0,0,0.4);
+            --shadow-lg: 0 8px 32px rgba(0,0,0,0.5);
+            --modal-overlay: rgba(0,0,0,0.65);
+        }
+
+        [data-theme="light"] {
+            --bg-primary: #f5f5f8;
+            --bg-secondary: #ffffff;
+            --bg-tertiary: #f0f0f5;
+            --bg-card: #ffffff;
+            --bg-card-hover: #f0f0f8;
+            --bg-header: #ffffff;
+            --bg-input: #f0f0f5;
+            --bg-modal: #ffffff;
+            --bg-cat: #f8f8fc;
+            --bg-cat-header-hover: #eeeef5;
+            --bg-subcat: rgba(0,0,0,0.02);
+            --bg-subcat-header: rgba(0,0,0,0.04);
+            --bg-subcat-header-hover: rgba(0,0,0,0.07);
+            --text-primary: #1a1a2e;
+            --text-secondary: #555570;
+            --text-muted: #9999aa;
+            --border-color: #e0e0ea;
+            --border-light: rgba(0,0,0,0.08);
+            --border-focus: #e94560;
+            --accent: #e94560;
+            --accent-hover: #d63851;
+            --accent-glow: rgba(233,69,96,0.08);
+            --green: #1b7a3d;
+            --green-bg: rgba(27,122,61,0.08);
+            --blue: #1a6fb5;
+            --blue-bg: rgba(26,111,181,0.08);
+            --purple: #7c5ce7;
+            --purple-hover: #6a4bd4;
+            --toast-bg: #333;
+            --shadow-sm: 0 1px 3px rgba(0,0,0,0.06);
+            --shadow-md: 0 4px 12px rgba(0,0,0,0.08);
+            --shadow-lg: 0 8px 32px rgba(0,0,0,0.12);
+            --modal-overlay: rgba(0,0,0,0.4);
+        }
+
+        /* ========== Reset & Base ========== */
+        *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+        html { -webkit-text-size-adjust: 100%; }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Noto Sans SC', Roboto, sans-serif;
+            background: var(--bg-primary);
+            color: var(--text-primary);
+            min-height: 100vh;
+            padding-bottom: 40px;
+            line-height: 1.5;
+            -webkit-font-smoothing: antialiased;
+            transition: background var(--transition), color var(--transition);
+        }
+
+        /* ========== Top Bar ========== */
+        .topbar {
+            background: var(--bg-header);
+            padding: 10px 12px;
+            display: flex;
+            align-items: center;
+            gap: 7px;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            box-shadow: var(--shadow-md);
+            flex-wrap: wrap;
+            backdrop-filter: blur(12px);
+            border-bottom: 1px solid var(--border-color);
+            transition: background var(--transition), border-color var(--transition);
+        }
+        .topbar input {
+            padding: 8px 12px;
+            border: 1.5px solid var(--border-color);
+            border-radius: var(--radius-sm);
+            background: var(--bg-input);
+            color: var(--text-primary);
+            font-size: 13px;
+            outline: none;
+            transition: border var(--transition), background var(--transition), box-shadow var(--transition);
+            min-width: 0;
+        }
+        .topbar input::placeholder { color: var(--text-muted); }
+        .topbar input:focus {
+            border-color: var(--border-focus);
+            box-shadow: 0 0 0 3px var(--accent-glow);
+        }
+        .topbar .addr-input { flex: 2; min-width: 130px; }
+        .topbar .search-input { flex: 1.5; min-width: 90px; }
+
+        .btn {
+            padding: 8px 12px;
+            border: none;
+            border-radius: var(--radius-sm);
+            cursor: pointer;
+            font-size: 13px;
+            font-weight: 600;
+            transition: all var(--transition);
+            white-space: nowrap;
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+            letter-spacing: 0.01em;
+            position: relative;
+            overflow: hidden;
+            user-select: none;
+            -webkit-tap-highlight-color: transparent;
+        }
+        .btn:active { transform: scale(0.94); }
+        .btn-sync  { background: var(--accent); color: #fff; box-shadow: 0 2px 8px var(--accent-glow); }
+        .btn-sync:hover { background: var(--accent-hover); }
+        .btn-stop  { background: var(--purple); color: #fff; }
+        .btn-stop:hover { background: var(--purple-hover); }
+        .btn-add   { background: var(--bg-card); color: var(--text-primary); border: 1px solid var(--border-color); }
+        .btn-add:hover { background: var(--bg-card-hover); }
+        .btn-save  { background: var(--green); color: #fff; }
+        .btn-save:hover { opacity: 0.85; }
+        .btn-load  { background: var(--blue); color: #fff; }
+        .btn-load:hover { opacity: 0.85; }
+        .btn-theme { background: transparent; color: var(--text-secondary); font-size: 17px; padding: 6px 8px; min-width: unset; }
+        .btn-theme:hover { color: var(--text-primary); background: var(--bg-card-hover); }
+        .btn-danger { background: transparent; color: var(--accent); border: 1px solid var(--accent); }
+        .btn-danger:hover { background: var(--accent); color: #fff; }
+
+        /* ========== Grid Controls ========== */
+        .grid-controls {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 12px 14px 0;
+            color: var(--text-muted);
+            font-size: 13px;
+            flex-wrap: wrap;
+            transition: color var(--transition);
+        }
+        .grid-controls select {
+            padding: 5px 10px;
+            border-radius: var(--radius-sm);
+            background: var(--bg-card);
+            color: var(--text-primary);
+            border: 1px solid var(--border-color);
+            outline: none;
+            font-size: 13px;
+            cursor: pointer;
+            transition: all var(--transition);
+        }
+
+        /* ========== Category Accordion ========== */
+        .categories-container { padding: 10px 14px 0; }
+        .cat-section {
+            margin-bottom: 8px;
+            border-radius: var(--radius-md);
+            overflow: hidden;
+            background: var(--bg-cat);
+            border: 1px solid var(--border-color);
+            box-shadow: var(--shadow-sm);
+            transition: all var(--transition);
+        }
+        .cat-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 12px 16px;
+            cursor: pointer;
+            user-select: none;
+            transition: background var(--transition);
+            -webkit-tap-highlight-color: transparent;
+        }
+        .cat-header:hover { background: var(--bg-cat-header-hover); }
+        .cat-header .cat-name {
+            font-weight: 600;
+            font-size: 14px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .cat-header .cat-count {
+            font-size: 11px;
+            color: var(--text-muted);
+            font-weight: 400;
+            background: var(--bg-card);
+            padding: 2px 8px;
+            border-radius: 10px;
+            transition: all var(--transition);
+        }
+        .cat-header .cat-arrow {
+            font-size: 12px;
+            transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            color: var(--text-muted);
+        }
+        .cat-section.open .cat-arrow { transform: rotate(90deg); }
+        .cat-body {
+            max-height: 0;
+            overflow: hidden;
+            transition: max-height 0.4s cubic-bezier(0.4, 0, 0.2, 1), opacity 0.3s ease;
+            opacity: 0;
+        }
+        .cat-section.open .cat-body { max-height: 8000px; opacity: 1; }
+
+        /* Sub-category */
+        .subcat-section {
+            margin: 0 8px 6px;
+            border-radius: var(--radius-sm);
+            overflow: hidden;
+            background: var(--bg-subcat);
+            border: 1px solid var(--border-light);
+            transition: all var(--transition);
+        }
+        .subcat-section:first-child { margin-top: 6px; }
+        .subcat-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 9px 14px;
+            cursor: pointer;
+            user-select: none;
+            font-size: 13px;
+            font-weight: 500;
+            transition: background var(--transition);
+            background: var(--bg-subcat-header);
+        }
+        .subcat-header:hover { background: var(--bg-subcat-header-hover); }
+        .subcat-header .subcat-name { display: flex; align-items: center; gap: 6px; }
+        .subcat-header .subcat-count {
+            font-size: 10px;
+            color: var(--text-muted);
+            font-weight: 400;
+            background: var(--bg-card);
+            padding: 1px 7px;
+            border-radius: 8px;
+            transition: all var(--transition);
+        }
+        .subcat-header .subcat-arrow {
+            font-size: 10px;
+            transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            color: var(--text-muted);
+        }
+        .subcat-section.open .subcat-arrow { transform: rotate(90deg); }
+        .subcat-body {
+            max-height: 0;
+            overflow: hidden;
+            transition: max-height 0.4s cubic-bezier(0.4, 0, 0.2, 1), opacity 0.3s ease;
+            opacity: 0;
+        }
+        .subcat-section.open .subcat-body { max-height: 6000px; opacity: 1; }
+
+        /* Cards Grid */
+        .cat-cards, .subcat-cards {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 8px;
+            padding: 8px 8px 8px 8px;
+        }
+        .grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 10px;
+            padding: 14px;
+        }
+        .card {
+            background: var(--bg-card);
+            border-radius: var(--radius-md);
+            padding: 16px 10px;
+            text-align: center;
+            cursor: pointer;
+            transition: all var(--transition);
+            border: 1.5px solid transparent;
+            position: relative;
+            overflow: hidden;
+            user-select: none;
+            -webkit-tap-highlight-color: transparent;
+            min-height: 68px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            box-shadow: var(--shadow-sm);
+        }
+        .card:hover {
+            background: var(--bg-card-hover);
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-md);
+        }
+        .card.keyboard { border-color: var(--border-color); }
+        .card.sound { border-color: var(--border-color); }
+        .card:active { transform: scale(0.95); background: var(--accent); color: #fff; }
+        .card:active .type-badge { background: rgba(255,255,255,0.2); }
+        .card .title {
+            font-size: 12px;
+            font-weight: 600;
+            word-break: break-all;
+            line-height: 1.35;
+            max-height: 2.7em;
+            overflow: hidden;
+            display: -webkit-box;
+            -webkit-line-clamp: 2;
+            -webkit-box-orient: vertical;
+        }
+        .card .type-badge {
+            font-size: 10px;
+            margin-top: 4px;
+            padding: 2px 7px;
+            border-radius: 12px;
+            background: var(--bg-card-hover);
+            transition: all var(--transition);
+        }
+        .card.sound .type-badge { color: var(--green); }
+        .card.keyboard .type-badge { color: var(--blue); }
+        .card .delete-btn {
+            position: absolute;
+            top: 4px;
+            right: 6px;
+            background: none;
+            border: none;
+            color: var(--accent);
+            font-size: 16px;
+            cursor: pointer;
+            padding: 2px 6px;
+            opacity: 0.5;
+            line-height: 1;
+            z-index: 2;
+            border-radius: 50%;
+            transition: all var(--transition);
+        }
+        .card .delete-btn:hover { opacity: 1; background: rgba(233,69,96,0.1); }
+        .card.hidden { display: none; }
+
+        /* ========== Section Heading ========== */
+        .section-heading {
+            padding: 16px 14px 6px;
+            font-size: 12px;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.08em;
+            color: var(--text-muted);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            transition: color var(--transition);
+        }
+        .section-heading::after {
+            content: '';
+            flex: 1;
+            height: 1px;
+            background: var(--border-color);
+            transition: background var(--transition);
+        }
+
+        /* Modal */
+        .modal-overlay {
+            display: none;
+            position: fixed;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background: var(--modal-overlay);
+            z-index: 200;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+            backdrop-filter: blur(4px);
+        }
+        .modal-overlay.show { display: flex; }
+        .modal {
+            background: var(--bg-modal);
+            border-radius: var(--radius-lg);
+            padding: 24px;
+            width: 100%;
+            max-width: 380px;
+            box-shadow: var(--shadow-lg);
+            border: 1px solid var(--border-color);
+            animation: modalIn 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+            transition: background var(--transition), border-color var(--transition);
+        }
+        @keyframes modalIn {
+            from { opacity: 0; transform: translateY(16px) scale(0.97); }
+            to   { opacity: 1; transform: translateY(0) scale(1); }
+        }
+        .modal h3 { margin-bottom: 16px; font-size: 17px; font-weight: 700; }
+        .modal input, .modal select {
+            width: 100%;
+            padding: 11px 14px;
+            margin-bottom: 10px;
+            border-radius: var(--radius-sm);
+            background: var(--bg-input);
+            color: var(--text-primary);
+            border: 1.5px solid var(--border-color);
+            font-size: 14px;
+            outline: none;
+            transition: all var(--transition);
+        }
+        .modal input:focus, .modal select:focus {
+            border-color: var(--border-focus);
+            box-shadow: 0 0 0 3px var(--accent-glow);
+        }
+        .modal .btn-row {
+            display: flex;
+            gap: 10px;
+            margin-top: 14px;
+        }
+        .modal .btn-row .btn { flex: 1; justify-content: center; }
+        .btn-cancel { background: var(--bg-card); color: var(--text-secondary); border: 1px solid var(--border-color); }
+        .btn-cancel:hover { background: var(--bg-card-hover); }
+
+        /* Toast */
+        .toast {
+            position: fixed;
+            bottom: 30px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: var(--toast-bg);
+            color: #fff;
+            padding: 11px 24px;
+            border-radius: var(--radius-md);
+            font-size: 13px;
+            z-index: 300;
+            opacity: 0;
+            transition: opacity 0.35s ease, transform 0.35s ease;
+            pointer-events: none;
+            white-space: nowrap;
+            box-shadow: var(--shadow-lg);
+            transform: translateX(-50%) translateY(8px);
+        }
+        .toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+
+        .no-results {
+            text-align: center;
+            padding: 40px 14px;
+            color: var(--text-muted);
+            font-size: 14px;
+        }
+        .synced-info {
+            padding: 6px 14px;
+            font-size: 11px;
+            color: var(--text-muted);
+            transition: color var(--transition);
+        }
+
+        /* Spinner */
+        .spinner {
+            display: inline-block;
+            width: 20px; height: 20px;
+            border: 2.5px solid var(--border-color);
+            border-top-color: var(--accent);
+            border-radius: 50%;
+            animation: spin 0.7s linear infinite;
+        }
+        @keyframes spin { to { transform: rotate(360deg); } }
+
+        /* ========== Responsive ========== */
+        @media (max-width: 768px) {
+            .topbar { padding: 8px 10px; gap: 5px; }
+            .topbar .addr-input { flex: 3; min-width: 100px; font-size: 12px; }
+            .topbar .search-input { flex: 2; min-width: 70px; font-size: 12px; }
+            .btn { padding: 7px 9px; font-size: 12px; }
+            .cat-cards, .subcat-cards { grid-template-columns: repeat(2, 1fr); gap: 6px; padding: 6px; }
+            .grid { grid-template-columns: repeat(2, 1fr); gap: 8px; padding: 10px; }
+            .card { padding: 14px 8px; min-height: 60px; border-radius: var(--radius-sm); }
+            .card .title { font-size: 11px; }
+            .cat-header { padding: 10px 12px; }
+            .cat-header .cat-name { font-size: 13px; }
+            .modal { padding: 20px; max-width: 100%; border-radius: var(--radius-md); }
+            .grid-controls { padding: 10px 10px 0; }
+            .categories-container { padding: 8px 10px 0; }
+            .section-heading { padding: 14px 10px 4px; }
+        }
+
+        @media (max-width: 480px) {
+            .topbar { padding: 6px 8px; gap: 4px; }
+            .topbar input { padding: 7px 8px; font-size: 11px; }
+            .btn { padding: 6px 7px; font-size: 11px; min-width: unset; }
+            .btn-theme { font-size: 15px; padding: 5px 6px; }
+            .cat-cards, .subcat-cards { grid-template-columns: repeat(2, 1fr); gap: 5px; padding: 5px; }
+            .grid { grid-template-columns: repeat(2, 1fr); gap: 6px; padding: 8px; }
+            .card { padding: 12px 6px; min-height: 54px; border-radius: 8px; }
+            .card .title { font-size: 10px; }
+            .card .type-badge { font-size: 9px; padding: 1px 5px; }
+            .cat-header { padding: 9px 10px; }
+            .cat-header .cat-name { font-size: 12px; }
+            .cat-header .cat-count { font-size: 10px; padding: 1px 6px; }
+            .grid-controls { padding: 8px 8px 0; font-size: 12px; gap: 6px; }
+            .categories-container { padding: 6px 8px 0; }
+            .section-heading { padding: 12px 8px 2px; font-size: 11px; }
+            .modal { padding: 16px; border-radius: var(--radius-md); }
+            .modal input, .modal select { padding: 9px 12px; font-size: 13px; }
+        }
+
+        @media (min-width: 1200px) {
+            .cat-cards, .subcat-cards { grid-template-columns: repeat(4, 1fr); }
+            .grid { grid-template-columns: repeat(4, 1fr); max-width: 1200px; margin: 0 auto; }
+            .categories-container { max-width: 1200px; margin: 0 auto; }
+            .grid-controls { max-width: 1200px; margin: 0 auto; }
+            .topbar { padding: 12px calc((100vw - 1200px) / 2 + 12px); }
+        }
+    </style>
+</head>
+<body>
+    <!-- Top Bar -->
+    <div class="topbar">
+        <input type="text" class="addr-input" id="serverAddr" placeholder="服务器地址，如 192.168.1.100:24122">
+        <input type="text" class="search-input" id="searchInput" placeholder="🔍 搜索音频..." oninput="onSearch()">
+        <button class="btn btn-sync" onclick="syncSounds()" title="同步电脑端音频">🔄</button>
+        <button class="btn btn-stop" onclick="stopSound()" title="停止播放">⏹</button>
+        <button class="btn btn-add" onclick="showAddModal()">＋</button>
+        <button class="btn btn-save" onclick="saveConfig()" title="保存到服务器">💾</button>
+        <button class="btn btn-load" onclick="loadConfig()" title="从服务器加载">📂</button>
+        <button class="btn btn-danger" onclick="deleteAllControls()" title="删除全部控件">🗑</button>
+        <button class="btn btn-theme" onclick="toggleTheme()" title="切换主题" id="themeBtn">🌙</button>
+    </div>
+
+    <!-- Grid Controls -->
+    <div class="grid-controls">
+        <span>每行：</span>
+        <select id="colCount" onchange="onColChange()">
+            <option value="1">1</option>
+            <option value="2">2</option>
+            <option value="3" selected>3</option>
+            <option value="4">4</option>
+            <option value="5">5</option>
+            <option value="6">6</option>
+        </select>
+        <span style="margin-left: auto;" id="itemCount">共 0 个控件</span>
+    </div>
+    <div class="synced-info" id="syncedInfo"></div>
+
+    <!-- Section heading for custom controls -->
+    <div class="section-heading" id="customSectionHeading" style="display:none;">
+        📋 自定义控件
+    </div>
+
+    <!-- Category Accordion -->
+    <div class="categories-container" id="categoriesContainer"></div>
+
+    <!-- Flat Grid for custom items -->
+    <div class="grid" id="soundGrid"></div>
+
+    <!-- Add/Edit Modal -->
+    <div class="modal-overlay" id="editModal">
+        <div class="modal">
+            <h3 id="modalTitle">添加控件</h3>
+            <input type="text" id="modalTitleInput" placeholder="标题（音频名称）">
+            <input type="text" id="modalSubtitleInput" placeholder="音频ID（通常为数字）">
+            <select id="modalTypeSelect">
+                <option value="sound">音频模式（通过API播放）</option>
+                <option value="keyboard">键盘模式（Alt+数字键）</option>
+            </select>
+            <input type="hidden" id="modalEditIndex" value="-1">
+            <div class="btn-row">
+                <button class="btn btn-cancel" onclick="closeModal()">取消</button>
+                <button class="btn btn-sync" onclick="saveItem()">保存</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Sync Confirm Modal -->
+    <div class="modal-overlay" id="syncModal">
+        <div class="modal">
+            <h3>同步结果</h3>
+            <p id="syncMsg">正在同步...</p>
+            <div class="btn-row" id="syncActions" style="display:none;">
+                <button class="btn btn-cancel" onclick="closeSyncModal()">取消</button>
+                <button class="btn btn-add" onclick="syncAppend()">追加到末尾</button>
+                <button class="btn btn-sync" onclick="syncReplace()">替换全部</button>
+            </div>
+            <div id="syncSpinner" style="text-align:center;padding:10px;"><span class="spinner"></span></div>
+        </div>
+    </div>
+
+    <!-- Toast -->
+    <div class="toast" id="toast"></div>
+
+    <script>
+        // ========== Theme ==========
+        function toggleTheme() {
+            const html = document.documentElement;
+            const current = html.getAttribute('data-theme');
+            const next = current === 'dark' ? 'light' : 'dark';
+            html.setAttribute('data-theme', next);
+            document.getElementById('themeBtn').textContent = next === 'dark' ? '🌙' : '☀️';
+            localStorage.setItem('soundpad_theme', next);
+        }
+
+        function applySavedTheme() {
+            const saved = localStorage.getItem('soundpad_theme') || 'dark';
+            document.documentElement.setAttribute('data-theme', saved);
+            document.getElementById('themeBtn').textContent = saved === 'dark' ? '🌙' : '☀️';
+        }
+
+        // ========== State ==========
+        let items = [];
+        let syncedSounds = [];
+        let syncedCategories = [];
+        let syncedMethod = '';
+        let syncedCategoryIndices = [];  // 分类中所有音效的索引（用于过滤自定义控件中的重复项）
+
+        // ========== Storage ==========
+        function getServerBase() {
+            let addr = document.getElementById('serverAddr').value.trim();
+            if (!addr) {
+                showToast('请先输入服务器地址');
+                return null;
+            }
+            if (!addr.startsWith('http://') && !addr.startsWith('https://')) {
+                addr = 'http://' + addr;
+            }
+            return addr;
+        }
+
+        function loadFromLocal() {
+            try {
+                const saved = localStorage.getItem('soundpad_items');
+                if (saved) { items = JSON.parse(saved); }
+                const cols = localStorage.getItem('soundpad_cols');
+                if (cols) { document.getElementById('colCount').value = cols; }
+                const addr = localStorage.getItem('soundpad_addr');
+                if (addr) { document.getElementById('serverAddr').value = addr; }
+            } catch(e) {}
+            applyCols();
+            renderAll();
+        }
+
+        function saveToLocal() {
+            localStorage.setItem('soundpad_items', JSON.stringify(items));
+            localStorage.setItem('soundpad_cols', document.getElementById('colCount').value);
+            localStorage.setItem('soundpad_addr', document.getElementById('serverAddr').value.trim());
+        }
+
+        // ========== Search ==========
+        function onSearch() { renderAll(); }
+
+        function getSearchQuery() {
+            return (document.getElementById('searchInput').value || '').trim().toLowerCase();
+        }
+
+        function matchesSearch(title) {
+            const q = getSearchQuery();
+            if (!q) return true;
+            return (title || '').toLowerCase().includes(q);
+        }
+
+        // ========== Column Count ==========
+        function onColChange() { applyCols(); saveToLocal(); }
+
+        function applyCols() {
+            const cols = document.getElementById('colCount').value;
+            document.getElementById('soundGrid').style.gridTemplateColumns = `repeat(${cols}, 1fr)`;
+            document.querySelectorAll('.cat-cards, .subcat-cards').forEach(el => {
+                el.style.gridTemplateColumns = `repeat(${cols}, 1fr)`;
+            });
+            localStorage.setItem('soundpad_cols', cols);
+        }
+
+        // ========== Rendering ==========
+        function renderAll() {
+            const catsContainer = document.getElementById('categoriesContainer');
+            const grid = document.getElementById('soundGrid');
+            const customHeading = document.getElementById('customSectionHeading');
+            const q = getSearchQuery();
+
+            // Collect synced sound indices (in categories)
+            // 使用后端直接返回的分类音效索引列表(已包含 SPL 回退索引)，避免遗漏
+            const categorySoundIndices = new Set(syncedCategoryIndices);
+
+            const customItems = items.filter(item => {
+                if (item.type !== 'sound') return true;
+                return !categorySoundIndices.has(item.subtitle);
+            });
+
+            let totalVisible = 0;
+
+            if (syncedCategories.length > 0) {
+                // Render accordion (default collapsed)
+                catsContainer.innerHTML = '';
+                totalVisible += renderCategoryTree(catsContainer, syncedCategories, 0);
+                catsContainer.style.display = 'block';
+
+                // Render custom items in flat grid
+                grid.innerHTML = '';
+                if (customItems.length > 0 || q) {
+                    customHeading.style.display = 'flex';
+                    totalVisible += renderCardGrid(grid, customItems);
+                } else {
+                    customHeading.style.display = 'none';
+                }
+
+                document.getElementById('syncedInfo').textContent =
+                    `已同步 ${syncedSounds.length} 个音频（${syncedMethod === 'pipe' ? 'Soundpad API' : 'SPL 文件'}）`;
+            } else {
+                catsContainer.innerHTML = '';
+                catsContainer.style.display = 'none';
+                customHeading.style.display = items.length > 0 ? 'flex' : 'none';
+                document.getElementById('syncedInfo').textContent = '';
+
+                grid.innerHTML = '';
+                totalVisible = renderCardGrid(grid, items);
+            }
+
+            document.getElementById('itemCount').textContent = q
+                ? `筛选结果：${totalVisible} 个`
+                : `共 ${items.length + syncedSounds.length} 个控件`;
+
+            saveToLocal();
+        }
+
+        function renderCategoryTree(container, cats, depth) {
+            const cols = document.getElementById('colCount').value;
+            let totalVisible = 0;
+
+            cats.forEach(cat => {
+                const section = document.createElement('div');
+                // Default collapsed — no 'open' class
+                section.className = depth === 0 ? 'cat-section' : 'subcat-section';
+
+                const header = document.createElement('div');
+                header.className = depth === 0 ? 'cat-header' : 'subcat-header';
+                header.onclick = () => section.classList.toggle('open');
+
+                const visibleSounds = cat.sounds.filter(s => matchesSearch(s.title));
+                const hasChildVisible = cat.children ? cat.children.some(c =>
+                    c.sounds.some(s => matchesSearch(s.title))
+                ) : false;
+
+                const hasVisible = visibleSounds.length > 0 || hasChildVisible;
+
+                if (getSearchQuery() && !hasVisible) {
+                    section.style.display = 'none';
+                }
+
+                // Auto-expand when searching and has results
+                if (getSearchQuery() && hasVisible) {
+                    section.classList.add('open');
+                }
+
+                header.innerHTML = `
+                    <span class="${depth === 0 ? 'cat-name' : 'subcat-name'}">
+                        <span>${depth === 0 ? '📁' : '📄'} ${escapeHtml(cat.name)}</span>
+                        <span class="${depth === 0 ? 'cat-count' : 'subcat-count'}">${cat.sounds.length}</span>
+                    </span>
+                    <span class="${depth === 0 ? 'cat-arrow' : 'subcat-arrow'}">▶</span>
+                `;
+                section.appendChild(header);
+
+                const body = document.createElement('div');
+                body.className = depth === 0 ? 'cat-body' : 'subcat-body';
+
+                if (visibleSounds.length > 0) {
+                    const cardsDiv = document.createElement('div');
+                    cardsDiv.className = depth === 0 ? 'cat-cards' : 'subcat-cards';
+                    cardsDiv.style.gridTemplateColumns = `repeat(${cols}, 1fr)`;
+                    visibleSounds.forEach(s => {
+                        const card = createSoundCard(s.index, s.title, 'sound', !!s.use_keyboard);
+                        cardsDiv.appendChild(card);
+                    });
+                    body.appendChild(cardsDiv);
+                    totalVisible += visibleSounds.length;
+                }
+
+                if (cat.children && cat.children.length > 0) {
+                    totalVisible += renderCategoryTree(body, cat.children, depth + 1);
+                }
+
+                section.appendChild(body);
+                container.appendChild(section);
+            });
+
+            return totalVisible;
+        }
+
+        function renderCardGrid(gridEl, itemList) {
+            let visible = 0;
+            itemList.forEach((item, i) => {
+                const title = item.title || item.subtitle || '未命名';
+                if (!matchesSearch(title)) return;
+                gridEl.appendChild(createCustomCard(item, i));
+                visible++;
+            });
+            return visible;
+        }
+
+        function createSoundCard(index, title, type, useKeyboard) {
+            const card = document.createElement('div');
+            card.className = 'card ' + type;
+            card.onclick = () => {
+                if (useKeyboard) {
+                    playViaKeyboard(index, title);
+                } else {
+                    playSoundDirect(index, title);
+                }
+            };
+            card.innerHTML = `
+                <span class="title">${escapeHtml(title || '未命名')}</span>
+                <span class="type-badge">${useKeyboard ? '⌨ 键盘' : '🎵 音频'}</span>
+            `;
+            return card;
+        }
+
+        function createCustomCard(item, index) {
+            const card = document.createElement('div');
+            card.className = 'card ' + (item.type || 'keyboard');
+            card.onclick = (e) => {
+                if (e.target.classList.contains('delete-btn')) return;
+                playItem(index);
+            };
+            card.oncontextmenu = (e) => { e.preventDefault(); showEditModal(index); };
+
+            card.innerHTML = `
+                <span class="delete-btn" onclick="deleteCustomItem(${index}); event.stopPropagation();">&times;</span>
+                <span class="title">${escapeHtml(item.title || item.subtitle || '未命名')}</span>
+                <span class="type-badge">${item.type === 'sound' ? '🎵 音频' : '⌨ 键盘'}</span>
+            `;
+            return card;
+        }
+
+        function deleteCustomItem(index) {
+            if (confirm('确定删除 "' + (items[index].title || '未命名') + '" 吗？')) {
+                items.splice(index, 1);
+                renderAll();
+                showToast('已删除');
+            }
+        }
+
+        function deleteAllControls() {
+            if (items.length === 0) {
+                showToast('没有可删除的控件');
+                return;
+            }
+            if (confirm(`确定要删除全部 ${items.length} 个自定义控件吗？此操作不可撤销。`)) {
+                items = [];
+                renderAll();
+                showToast('已删除全部控件');
+            }
+        }
+
+        function escapeHtml(str) {
+            const div = document.createElement('div');
+            div.textContent = str;
+            return div.innerHTML;
+        }
+
+        // ========== Actions ==========
+        async function playSoundDirect(index, title) {
+            const base = getServerBase();
+            if (!base) return;
+            try {
+                const resp = await fetch(base + '/play_sound', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ index: index })
+                });
+                const result = await resp.json();
+                if (result.status === 'ok') {
+                    showToast('已发送：' + (title || index));
+                } else {
+                    showToast('失败：' + (result.message || '未知错误'));
+                }
+            } catch(e) {
+                showToast('连接失败：' + e.message);
+            }
+        }
+
+        async function playViaKeyboard(index, title) {
+            // 通过键盘模拟 (Alt+Numpad) 播放，匹配 SPL 文档顺序索引
+            const base = getServerBase();
+            if (!base) return;
+            const keyStr = String(index);
+            try {
+                const resp = await fetch(base + '/keyboard', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ key: keyStr })
+                });
+                const result = await resp.json();
+                if (result.status === 'ok') {
+                    showToast('已发送(键盘)：' + (title || index));
+                } else {
+                    // 键盘失败时回退到 play_sound
+                    playSoundDirect(index, title);
+                    return;
+                }
+            } catch(e) {
+                showToast('连接失败：' + e.message);
+            }
+        }
+
+        async function playItem(index) {
+            const item = items[index];
+            const base = getServerBase();
+            if (!base) return;
+
+            let endpoint, body;
+            if (item.type === 'sound') {
+                endpoint = '/play_sound';
+                body = { index: item.subtitle };
+            } else {
+                endpoint = '/keyboard';
+                body = { key: item.subtitle };
+            }
+
+            try {
+                const resp = await fetch(base + endpoint, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(body)
+                });
+                const result = await resp.json();
+                if (result.status === 'ok') {
+                    showToast('已发送：' + (item.title || item.subtitle));
+                } else {
+                    showToast('失败：' + (result.message || '未知错误'));
+                }
+            } catch(e) {
+                showToast('连接失败：' + e.message);
+            }
+        }
+
+        async function stopSound() {
+            const base = getServerBase();
+            if (!base) return;
+            try {
+                await fetch(base + '/stop_sound', { method: 'POST' });
+                await fetch(base + '/stop', { method: 'POST' }).catch(()=>{});
+                showToast('停止播放');
+            } catch(e) {
+                showToast('连接失败：' + e.message);
+            }
+        }
+
+        // ========== Sync ==========
+        async function syncSounds() {
+            const base = getServerBase();
+            if (!base) return;
+
+            document.getElementById('syncModal').classList.add('show');
+            document.getElementById('syncSpinner').style.display = 'block';
+            document.getElementById('syncActions').style.display = 'none';
+            document.getElementById('syncMsg').textContent = '正在同步音频列表...';
+
+            try {
+                const resp = await fetch(base + '/sync_sounds');
+                const result = await resp.json();
+
+                document.getElementById('syncSpinner').style.display = 'none';
+                if (result.status === 'ok') {
+                    syncedSounds = result.sounds;
+                    syncedCategories = result.categories || [];
+                    syncedCategoryIndices = result.category_sound_indices || [];
+                    syncedMethod = result.method || 'unknown';
+                    const methodLabel = syncedMethod === 'pipe' ? 'Soundpad API' : 'SPL 文件';
+                    const catInfo = syncedCategories.length > 0
+                        ? `，${syncedCategories.length} 个分组`
+                        : '';
+                    document.getElementById('syncMsg').textContent =
+                        `同步成功！发现 ${syncedSounds.length} 个音频${catInfo}（通过 ${methodLabel}）\n要替换当前控件吗？`;
+                    document.getElementById('syncActions').style.display = 'flex';
+                } else {
+                    document.getElementById('syncMsg').textContent = '同步失败：' + (result.message || '未知错误');
+                    document.getElementById('syncActions').innerHTML =
+                        '<button class="btn btn-cancel" onclick="closeSyncModal()" style="flex:1;justify-content:center;">关闭</button>';
+                    document.getElementById('syncActions').style.display = 'flex';
+                }
+            } catch(e) {
+                document.getElementById('syncSpinner').style.display = 'none';
+                document.getElementById('syncMsg').textContent = '同步失败：无法连接服务器\n' + e.message;
+                document.getElementById('syncActions').innerHTML =
+                    '<button class="btn btn-cancel" onclick="closeSyncModal()" style="flex:1;justify-content:center;">关闭</button>';
+                document.getElementById('syncActions').style.display = 'flex';
+            }
+        }
+
+        function syncAppend() {
+            syncedSounds.forEach(s => {
+                items.push({ title: s.title || s.index, subtitle: s.index, type: 'sound' });
+            });
+            closeSyncModal();
+            renderAll();
+            showToast(`已追加 ${syncedSounds.length} 个音频控件`);
+        }
+
+        function syncReplace() {
+            items = syncedSounds.map(s => ({
+                title: s.title || s.index,
+                subtitle: s.index,
+                type: 'sound'
+            }));
+            closeSyncModal();
+            renderAll();
+            showToast(`已替换为 ${items.length} 个音频控件`);
+        }
+
+        function closeSyncModal() {
+            document.getElementById('syncModal').classList.remove('show');
+        }
+
+        // ========== Modal ==========
+        function showAddModal() {
+            document.getElementById('modalTitle').textContent = '添加控件';
+            document.getElementById('modalTitleInput').value = '';
+            document.getElementById('modalSubtitleInput').value = '';
+            document.getElementById('modalTypeSelect').value = 'sound';
+            document.getElementById('modalEditIndex').value = '-1';
+            document.getElementById('editModal').classList.add('show');
+        }
+
+        function showEditModal(index) {
+            document.getElementById('modalTitle').textContent = '编辑控件';
+            document.getElementById('modalTitleInput').value = items[index].title;
+            document.getElementById('modalSubtitleInput').value = items[index].subtitle;
+            document.getElementById('modalTypeSelect').value = items[index].type || 'keyboard';
+            document.getElementById('modalEditIndex').value = index;
+            document.getElementById('editModal').classList.add('show');
+        }
+
+        function closeModal() {
+            document.getElementById('editModal').classList.remove('show');
+        }
+
+        function saveItem() {
+            const title = document.getElementById('modalTitleInput').value.trim();
+            const subtitle = document.getElementById('modalSubtitleInput').value.trim();
+            const type = document.getElementById('modalTypeSelect').value;
+            const index = parseInt(document.getElementById('modalEditIndex').value);
+
+            if (!subtitle) {
+                showToast('请输入音频ID或按键序列');
+                return;
+            }
+
+            const newItem = { title: title || subtitle, subtitle: subtitle, type: type };
+
+            if (index >= 0 && index < items.length) {
+                items[index] = newItem;
+            } else {
+                items.push(newItem);
+            }
+
+            closeModal();
+            renderAll();
+            showToast(index >= 0 ? '已更新' : '已添加');
+        }
+
+        // ========== Config ==========
+        async function saveConfig() {
+            const base = getServerBase();
+            if (!base) return;
+            try {
+                const data = {
+                    crossAxisCount: parseInt(document.getElementById('colCount').value),
+                    items: items.map(i => ({ title: i.title, subtitle: i.subtitle, type: i.type }))
+                };
+                const resp = await fetch(base + '/save_config', {
+                    method: 'POST',
+                    body: JSON.stringify(data)
+                });
+                const result = await resp.json();
+                showToast(result.status === 'ok' ? '配置已保存到服务器' : '保存失败');
+            } catch(e) {
+                showToast('保存失败：' + e.message);
+            }
+        }
+
+        async function loadConfig() {
+            const base = getServerBase();
+            if (!base) return;
+            try {
+                const resp = await fetch(base + '/load_config');
+                const result = await resp.json();
+                if (result.status === 'ok') {
+                    const data = JSON.parse(result.data);
+                    if (data.crossAxisCount) document.getElementById('colCount').value = data.crossAxisCount;
+                    if (data.items) {
+                        items = data.items.map(i => ({
+                            title: i.title, subtitle: i.subtitle, type: i.type || 'keyboard'
+                        }));
+                    }
+                    applyCols();
+                    renderAll();
+                    showToast('配置已从服务器加载');
+                } else {
+                    showToast('加载失败：' + (result.message || ''));
+                }
+            } catch(e) {
+                showToast('加载失败：' + e.message);
+            }
+        }
+
+        // ========== Toast ==========
+        function showToast(msg) {
+            const toast = document.getElementById('toast');
+            toast.textContent = msg;
+            toast.classList.add('show');
+            clearTimeout(toast._timeout);
+            toast._timeout = setTimeout(() => toast.classList.remove('show'), 2000);
+        }
+
+        // ========== Keyboard ==========
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape') {
+                closeModal();
+                closeSyncModal();
+            }
+        });
+
+        // ========== Init ==========
+        applySavedTheme();
+        loadFromLocal();
+    </script>
+</body>
+</html>
